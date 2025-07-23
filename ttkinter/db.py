@@ -21,19 +21,58 @@ def criar_tabela():
                        (ID INTEGER PRIMARY KEY,
                        email TEXT UNIQUE,
                        senha TEXT)""")
-        
+
+        cursor.execute("""CREATE TABLE IF NOT EXISTS acais
+                       (ID INTEGER PRIMARY KEY,
+                       nome TEXT,
+                       leite_ninho INTEGER,
+                       nutella INTEGER,
+                       pacoca INTEGER,
+                       morango INTEGER,
+                       granola INTEGER,
+                       cacau INTEGER,
+                       uva INTEGER,
+                       leite_condensado INTEGER
+                       )""")
+
+        cursor.execute
+
+
 def pegar_email(email):
     with conectar_banco() as cursor:
-        cursor.execute("""SELECT email FROM usuarios WHERE email=?""",(email ,))
+        cursor.execute(
+            """SELECT email FROM usuarios WHERE email=?""", (email,))
         return cursor.fetchone()
-    
-def criar_conta(email,senha):
+
+
+def criar_conta(email, senha):
     with conectar_banco() as cursor:
-        cursor.execute("""INSERT INTO usuarios (email,senha) VALUES (?,?)""",(email,senha))
-    
-    
+        cursor.execute(
+            """INSERT INTO usuarios (email,senha) VALUES (?,?)""", (email, senha))
+
+
+def pegar_senha(email):
+    with conectar_banco() as cursor:
+        cursor.execute(
+            """SELECT senha FROM usuarios WHERE email=?""", (email,))
+        return cursor.fetchone()
+
+
+def adicionar_tipo_acai(nome, leite_ninho, nutella, pacoca, morango, granola, cacau, uva, leite_condensado):
+    with conectar_banco() as cursor:
+        cursor.execute("""INSERT INTO acais (nome, leite_ninho, nutella, pacoca, morango, granola, cacau, uva, leite_condensado) VALUES (?,?,?,?,?,
+                       ?,?,?,?)""", (
+            nome,
+            leite_ninho,
+            nutella,
+            pacoca,
+            morango,
+            granola,
+            cacau,
+            uva,
+            leite_condensado
+        ))
+
+
 if __name__ == "__main__":
     criar_tabela()
-    
-        
-    

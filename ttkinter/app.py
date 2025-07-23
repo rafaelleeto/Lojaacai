@@ -1,5 +1,10 @@
 import customtkinter as tk
 import db
+from werkzeug.security import check_password_hash, generate_password_hash
+
+
+tk.set_appearance_mode("dark")
+
 
 class CustomMessageBox(tk.CTkToplevel):
     def __init__(self, master, title="Mensagem", message="Texto da mensagem"):
@@ -26,14 +31,13 @@ class CustomMessageBox(tk.CTkToplevel):
         self.destroy()
 
 
-
-
 def registro():
+    janela.withdraw()
     subjanela = tk.CTkToplevel(janela)
     subjanela.title("Registro")
-    subjanela.geometry("1000x800")
+    subjanela.geometry("1280x720")
     subjanela.grab_set()
-    
+
     label_email = tk.CTkLabel(subjanela, text="Usuário:")
     label_email.pack()
 
@@ -46,49 +50,145 @@ def registro():
     entry_senha = tk.CTkEntry(subjanela, show="*")
     entry_senha.pack()
 
-    botao_login = tk.CTkButton(subjanela, text="Registrar",command=lambda: verificar_registro(entry_email.get(),entry_senha.get(), subjanela))
+    botao_login = tk.CTkButton(subjanela, text="Registrar", command=lambda: verificar_registro(
+        entry_email.get(), entry_senha.get(), subjanela))
     botao_login.pack()
-    
-    
-    
-def verificar_registro(email, senha, subjanela):
-    email_db = db.pegar_email(email)
-    if email == email_db[0]:
-        CustomMessageBox(subjanela)
-        
-    else:
-        db.criar_conta(email,senha)
-        subjanela.destroy()
-        
 
-    
-    
+
+def verificar_registro(email, senha, subjanela):
+
+    if db.pegar_email(email):
+        CustomMessageBox(subjanela, "Email em uso",
+                         "Esse email ja foi cadastrado")
+
+    else:
+        db.criar_conta(email, generate_password_hash(senha))
+        subjanela.withdraw()
+        login()
+        CustomMessageBox(subjanela, "Conta criada",
+                         "A conta foi criada com sucesso")
+
+
+def login():
+    janela.withdraw()
+    nova_janela = tk.CTkToplevel()
+    nova_janela.title("Login")
+    nova_janela.geometry("1280x720")
+    nova_janela.grab_set()
+
+    label_email = tk.CTkLabel(nova_janela, text="Usuário:")
+    label_email.pack()
+
+    entry_email = tk.CTkEntry(nova_janela)
+    entry_email.pack()
+
+    label_senha = tk.CTkLabel(nova_janela, text="Senha:")
+    label_senha.pack()
+
+    entry_senha = tk.CTkEntry(nova_janela, show="*")
+    entry_senha.pack()
+
+    botao_login = tk.CTkButton(nova_janela, text="Efetuar Login", command=lambda: verificar_login(
+        entry_email.get(), entry_senha.get(), nova_janela))
+    botao_login.pack()
+
+
+def verificar_login(email, senha, janela):
+    senha_criptografada = db.pegar_senha(email)
+    if check_password_hash(senha_criptografada[0], senha):
+        global usuario
+        usuario = db.pegar_email(email)
+        janela.withdraw()
+        CustomMessageBox(janela, "Logado com sucesso!",
+                         "Login efetuado com sucesso.")
+        pagina_principal()
+    else:
+        CustomMessageBox(janela, "Acesso negado",
+                         "Email ou Senha estão incorretos.")
+
+
+def pagina_principal():
+    print(usuario[0])
+    nova_janela = tk.CTkToplevel()
+    nova_janela.title("Menu Principal")
+    nova_janela.geometry("1280x720")
+    if usuario[0] == "rafa":
+        botao_criar_acai = tk.CTkButton(
+            nova_janela, text="Criar Açai", command=criar_acai)
+        botao_criar_acai.pack(pady=10)
+    botao_criar_pedido = tk.CTkButton(
+        nova_janela, text="Criar pedido", command=criar_pedido)
+    botao_criar_pedido.pack(pady=10)
+
+
+def criar_pedido():
+    pass
+
+
+def criar_acai():
+    nova_janela = tk.CTkToplevel()
+    nova_janela.title("Menu Principal")
+    nova_janela.geometry("1280x720")
+    nova_janela.grab_set()
+    nome = tk.CTkEntry(nova_janela, placeholder_text="Nome do açaí")
+    nome.pack(pady=10)
+    leite_ninho = tk.CTkCheckBox(nova_janela, text="Leite Ninho")
+    leite_ninho.pack(pady=5)
+    nutella = tk.CTkCheckBox(nova_janela, text="Nutella")
+    nutella.pack(pady=5)
+    pacoca = tk.CTkCheckBox(nova_janela, text="Paçoca")
+    pacoca.pack(pady=5)
+    uva = tk.CTkCheckBox(nova_janela, text="Uva")
+    uva.pack(pady=5)
+    cacau = tk.CTkCheckBox(nova_janela, text="Cacau")
+    cacau.pack(pady=5)
+    granola = tk.CTkCheckBox(nova_janela, text="Granola")
+    granola.pack(pady=5)
+    morango = tk.CTkCheckBox(nova_janela, text="Morango")
+    morango.pack(pady=5)
+    leite_condensado = tk.CTkCheckBox(nova_janela, text="Leite Condensado")
+    leite_condensado.pack(pady=5)
+
+    botao_criar = tk.CTkButton(nova_janela, text="Criar Açai", command=lambda: adicionar_acai_ao_banco(nome.get(),
+                                                                                                       leite_ninho.get(),
+                                                                                                       nutella.get(),
+                                                                                                       morango.get(),
+                                                                                                       pacoca.get(),
+                                                                                                       uva.get(),
+                                                                                                       cacau.get(),
+                                                                                                       granola.get(),
+                                                                                                       leite_condensado.get(),
+                                                                                                       nova_janela))
+    botao_criar.pack(pady=5)
+
+
+def adicionar_acai_ao_banco(nome, leite_ninho, nutella, morango, pacoca, uva, cacau, granola, leite_condensado, nova_janela):
+    CustomMessageBox(nova_janela, title="Açai Criado com sucesso",
+                     message="O açai foi criado.")
+    db.adicionar_tipo_acai(
+        nome,
+        int(leite_ninho),
+        int(nutella),
+        int(pacoca),
+        int(morango),
+        int(granola),
+        int(cacau),
+        int(uva),
+        int(leite_condensado)
+    )
+
+    nova_janela.withdraw()
+
 
 janela = tk.CTk()
 janela.title("Gerenciador da casa do açaí")
-janela.geometry("1000x800")
+janela.geometry("1280x720")
 
 botao = tk.CTkButton(janela, text="Criar conta", command=registro)
 botao.pack(padx=10, pady=10)
 
-botao = tk.CTkButton(janela, text="Entrar")
+botao = tk.CTkButton(janela, text="Fazer login", command=login)
 botao.pack(padx=10, pady=10)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 if __name__ == "__main__":
     janela.mainloop()
-
-
