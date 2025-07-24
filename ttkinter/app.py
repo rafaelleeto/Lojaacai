@@ -121,10 +121,6 @@ def pagina_principal():
     botao_criar_pedido.pack(pady=10)
 
 
-def criar_pedido():
-    pass
-
-
 def criar_acai():
     nova_janela = tk.CTkToplevel()
     nova_janela.title("Menu Principal")
@@ -178,6 +174,41 @@ def adicionar_acai_ao_banco(nome, leite_ninho, nutella, morango, pacoca, uva, ca
     )
 
     nova_janela.withdraw()
+
+
+def criar_pedido():
+    nova_janela = tk.CTkToplevel()
+    nova_janela.title("Adicionar pedido")
+    nova_janela.geometry("1280x720")
+    nova_janela.grab_set()
+    opcoes = db.pegar_tipos_acai()
+    label_nome = tk.CTkLabel(
+        master=nova_janela, text="Digite o nome do cliente")
+    label_nome.pack()
+    nome_cliente = tk.CTkEntry(master=nova_janela)
+    nome_cliente.pack(pady=10, padx=10)
+    nova_lista = [opcao["nome"] for opcao in opcoes]
+    combobox = tk.CTkComboBox(master=nova_janela, values=nova_lista)
+    combobox.pack(padx=20, pady=20)
+    tamanho_lista = ["Pequeno", "Médio", "Grande"]
+    tamanho = tk.CTkComboBox(master=nova_janela, values=tamanho_lista)
+    tamanho.pack(padx=20, pady=20)
+    botao = tk.CTkButton(master=nova_janela, text="Adicionar Pedido", command=lambda: adicionar_pedido_ao_banco(
+        nome_cliente.get(), combobox.get(), tamanho.get(), nova_janela, ))
+    botao.pack(pady=10, padx=10)
+
+
+def adicionar_pedido_ao_banco(nome, escolha, tamanho, janela):
+    CustomMessageBox(janela, title="Pedido adicionado",
+                     message="Pedido foi adicionado com sucesso")
+    janela.withdraw()
+    precos = {
+        "Pequeno": 16,
+        "Médio": 19,
+        "Grande": 26
+    }
+    preco = precos.get(tamanho, 0)
+    db.criar_pedido_acai(nome, escolha, tamanho, preco)
 
 
 janela = tk.CTk()

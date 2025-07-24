@@ -35,7 +35,12 @@ def criar_tabela():
                        leite_condensado INTEGER
                        )""")
 
-        cursor.execute
+        cursor.execute("""CREATE TABLE IF NOT EXISTS pedidos 
+                       (ID INTEGER PRIMARY KEY,
+                       nome TEXT,
+                       id_acai INTEGER,
+                       tamanho TEXT,
+                       preco INTEGER)""")
 
 
 def pegar_email(email):
@@ -72,6 +77,18 @@ def adicionar_tipo_acai(nome, leite_ninho, nutella, pacoca, morango, granola, ca
             uva,
             leite_condensado
         ))
+
+
+def pegar_tipos_acai():
+    with conectar_banco() as cursor:
+        cursor.execute("""SELECT * FROM acais""")
+        return cursor.fetchall()
+
+
+def criar_pedido_acai(nome, id, tamanho, preco):
+    with conectar_banco() as cursor:
+        cursor.execute(
+            """INSERT INTO pedidos (nome,id_acai,tamanho,preco)  VALUES(?,?,?,?) """, (nome, id, tamanho, preco))
 
 
 if __name__ == "__main__":
