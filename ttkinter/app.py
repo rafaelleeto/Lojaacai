@@ -108,7 +108,6 @@ def verificar_login(email, senha, janela):
 
 
 def pagina_principal():
-    print(usuario[0])
     nova_janela = tk.CTkToplevel()
     nova_janela.title("Menu Principal")
     nova_janela.geometry("1280x720")
@@ -119,6 +118,164 @@ def pagina_principal():
     botao_criar_pedido = tk.CTkButton(
         nova_janela, text="Criar pedido", command=criar_pedido)
     botao_criar_pedido.pack(pady=10)
+
+    botao_deletar_pedido = tk.CTkButton(
+        nova_janela, text="Deletar Pedido", command=deletar_pedido)
+    botao_deletar_pedido.pack(pady=10)
+
+    botao_ver_pedidos = tk.CTkButton(
+        nova_janela, text="Editar pedido", command=atualizar_pedido)
+    botao_ver_pedidos.pack(pady=10)
+
+    botao_ver_pedidos = tk.CTkButton(
+        nova_janela, text="Confirmar Entrega", command=confirmar_entrega)
+    botao_ver_pedidos.pack(pady=10)
+
+    botao_ver_pedidos = tk.CTkButton(
+        nova_janela, text="Ver Lucros", command=ver_lucros)
+    botao_ver_pedidos.pack(pady=10)
+
+
+def confirmar_entrega():
+    nova_janela = tk.CTkToplevel()
+    nova_janela.title("Confirmar entrega")
+    nova_janela.geometry("1280x720")
+    nova_janela.grab_set()
+    itens = db.pegar_pedidos_nao_entregues()
+    frame_lista = tk.CTkScrollableFrame(
+        master=nova_janela, width=250, height=250)
+    frame_lista.pack(pady=20, padx=20)
+    for item in itens:
+        label = tk.CTkLabel(master=frame_lista,
+                            text=f"ID: {item["id"]} | Nome : {item["nome"]} ")
+        label.pack(pady=5, padx=10)
+
+    id = tk.CTkEntry(
+        nova_janela, placeholder_text="Digite o ID para excluir o pedido")
+    id.pack(pady=10)
+
+    botao_enviar = tk.CTkButton(
+        nova_janela, text="Enviar", command=lambda: entrega(id.get(), nova_janela))
+    botao_enviar.pack()
+
+
+def entrega(id, subjanela):
+    db.atualizar_entrega(id)
+    CustomMessageBox(master=subjanela, title="Sucesso",
+                     message="Entrega do pedido alterada")
+    subjanela.withdraw()
+
+
+def deletar_pedido():
+    nova_janela = tk.CTkToplevel()
+    nova_janela.title("Deletar Pedidos")
+    nova_janela.geometry("1280x720")
+    nova_janela.grab_set()
+    itens = db.pegar_pedidos_nao_entregues()
+
+    frame_lista = tk.CTkScrollableFrame(
+        master=nova_janela, width=500, height=500)
+    frame_lista.pack(pady=20, padx=20)
+
+    for item in itens:
+        label = tk.CTkLabel(master=frame_lista,
+                            text=f"ID: {item["id"]} | Nome : {item["nome"]}")
+        label.pack(pady=5, padx=10)
+
+    id = tk.CTkEntry(
+        nova_janela, placeholder_text="Digite o ID para excluir o pedido")
+    id.pack(pady=10)
+
+    botao_enviar = tk.CTkButton(nova_janela, text="Enviar", command=lambda: excluir_pedido(
+        id.get(), nova_janela))
+    botao_enviar.pack()
+
+
+def excluir_pedido(id, subjanela):
+    db.excluir_pedido(id)
+    CustomMessageBox(master=subjanela, title="Sucesso!",
+                     message="Pedido deletado com sucesso!")
+    subjanela.withdraw()
+
+
+def ver_lucros():
+    lucro = 0
+    nova_janela = tk.CTkToplevel()
+    nova_janela.title("Lucros totais")
+    nova_janela.geometry("1280x720")
+    nova_janela.grab_set()
+
+    itens = db.pegar_pedidos_entregues()
+    frame_lista = tk.CTkScrollableFrame(
+        master=nova_janela, width=250, height=250)
+    frame_lista.pack(pady=20, padx=20)
+    for item in itens:
+        lucro = lucro + item["preco"]
+        label = tk.CTkLabel(master=frame_lista,
+                            text=f"ID: {item["id"]} | Nome : {item["nome"]} | {item["preco"]}")
+        label.pack(pady=5, padx=10)
+
+    label_tipo = tk.CTkLabel(
+        master=nova_janela, text=f"O lucro total foi de {lucro}")
+    label_tipo.pack()
+
+
+def atualizar_pedido():
+    nova_janela = tk.CTkToplevel()
+    nova_janela.title("Alterar Pedido")
+    nova_janela.geometry("1280x720")
+    nova_janela.grab_set()
+    itens = db.pegar_pedidos_nao_entregues()
+    frame_lista = tk.CTkScrollableFrame(
+        master=nova_janela, width=250, height=250)
+    frame_lista.pack(pady=20, padx=20)
+    for item in itens:
+        label = tk.CTkLabel(master=frame_lista,
+                            text=f"ID: {item["id"]} | Nome : {item["nome"]} ")
+        label.pack(pady=5, padx=10)
+
+    opcoes = db.pegar_tipos_acai()
+
+    label_id = tk.CTkLabel(
+        master=nova_janela, text="Digite o ID que deseja Mudar")
+    label_id.pack()
+    id_cliente = tk.CTkEntry(master=nova_janela)
+    id_cliente.pack(pady=5, padx=5)
+    label_nome = tk.CTkLabel(
+        master=nova_janela, text="Digite o nome do cliente")
+    label_nome.pack()
+    nome_cliente = tk.CTkEntry(master=nova_janela)
+    nome_cliente.pack(pady=5, padx=5)
+    nova_lista = [opcao["nome"] for opcao in opcoes]
+    label_tipo = tk.CTkLabel(
+        master=nova_janela, text="Escolha o açai")
+    label_tipo.pack()
+    combobox = tk.CTkComboBox(master=nova_janela, values=nova_lista)
+    combobox.pack(padx=5, pady=5)
+    tamanho = tk.CTkLabel(
+        master=nova_janela, text="Escolha o Tamanho")
+    tamanho.pack()
+    tamanho_lista = ["Pequeno", "Médio", "Grande"]
+    tamanho = tk.CTkComboBox(master=nova_janela, values=tamanho_lista)
+    tamanho.pack(padx=5, pady=5)
+
+    botao_enviar = tk.CTkButton(nova_janela, text="Enviar", command=lambda: alterar_pedido(
+        nome_cliente.get(), combobox.get(), tamanho.get(), nova_janela, id_cliente.get()))
+    botao_enviar.pack()
+
+
+def alterar_pedido(nome, combobox, tamanho, novajanela, id):
+    precos = {
+        "Pequeno": 16,
+        "Médio": 19,
+        "Grande": 26
+    }
+
+    preco = precos.get(tamanho, 0)
+    db.atualizar_pedido(nome, combobox, tamanho, preco, id)
+    CustomMessageBox(master=novajanela, title="Sucesso!",
+                     message="Pedido Alterado com sucesso")
+    novajanela.withdraw()
 
 
 def criar_acai():

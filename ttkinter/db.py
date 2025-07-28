@@ -38,9 +38,10 @@ def criar_tabela():
         cursor.execute("""CREATE TABLE IF NOT EXISTS pedidos 
                        (ID INTEGER PRIMARY KEY,
                        nome TEXT,
-                       id_acai INTEGER,
+                       nome_acai TEXT,
                        tamanho TEXT,
-                       preco INTEGER)""")
+                       preco INTEGER,
+                       entregue INTEGER)""")
 
 
 def pegar_email(email):
@@ -85,10 +86,44 @@ def pegar_tipos_acai():
         return cursor.fetchall()
 
 
-def criar_pedido_acai(nome, id, tamanho, preco):
+def criar_pedido_acai(nome, id, tamanho, preco,):
     with conectar_banco() as cursor:
         cursor.execute(
-            """INSERT INTO pedidos (nome,id_acai,tamanho,preco)  VALUES(?,?,?,?) """, (nome, id, tamanho, preco))
+            """INSERT INTO pedidos (nome,nome_acai,tamanho,preco,entregue)  VALUES(?,?,?,?,?) """, (nome, id, tamanho, preco, 0))
+
+
+def pegar_pedidos_nao_entregues():
+    with conectar_banco() as cursor:
+        cursor.execute("""SELECT * FROM pedidos WHERE entregue=0""")
+        return cursor.fetchall()
+
+
+def excluir_pedido(id):
+    with conectar_banco() as cursor:
+        cursor.execute("""DELETE FROM pedidos WHERE id=?""", (id,))
+
+
+def pegar_pedidos():
+    with conectar_banco() as cursor:
+        cursor.execute("""SELECT * FROM pedidos""")
+        return cursor.fetchall()
+
+
+def atualizar_pedido(nome, tipo, tamanho, preco, id):
+    with conectar_banco() as cursor:
+        cursor.execute(
+            """UPDATE pedidos SET nome=?,nome_acai=?,tamanho=?,preco=? WHERE id=?""", (nome, tipo, tamanho, preco, id))
+
+
+def atualizar_entrega(id):
+    with conectar_banco() as cursor:
+        cursor.execute("""UPDATE pedidos SET entregue=? WHERE id=?""", (1, id))
+
+
+def pegar_pedidos_entregues():
+    with conectar_banco() as cursor:
+        cursor.execute("""SELECT * FROM pedidos WHERE entregue=1""")
+        return cursor.fetchall()
 
 
 if __name__ == "__main__":
