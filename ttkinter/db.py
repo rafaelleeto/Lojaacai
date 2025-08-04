@@ -125,6 +125,4 @@ def pegar_pedidos_entregues():
         cursor.execute("""SELECT * FROM pedidos WHERE entregue=1""")
         return cursor.fetchall()
 
-
-if __name__ == "__main__":
-    criar_tabela()
+criar_tabela()
